@@ -119,19 +119,19 @@ TOKEN_EXPIRY_MS=300000  # 5 menit
 ```env
 PUBLIC_BACKEND_URL=http://localhost:3001
 PUBLIC_WS_URL=ws://localhost:3001
+PUBLIC_FRONTEND_URL=http://localhost:5178
 ```
 
 ### Jalankan Development
 
 ```bash
-# Terminal 1 — Backend
-cd apps/backend
-bun run dev
-
-# Terminal 2 — Frontend
-cd apps/frontend
+# Dari root project — menjalankan backend + frontend secara parallel
 bun run dev
 ```
+
+Ini akan menjalankan:
+- Backend: `http://localhost:3001` (HTTP + WebSocket di port yang sama)
+- Frontend: `http://localhost:5178` (Vite dev server)
 
 ---
 
@@ -685,3 +685,67 @@ curl "http://localhost:3001/scan?token=<TOKEN_DARI_WS>"
 - [ ] **Redis store**: ganti in-memory Map agar survive restart
 - [ ] **QR Refresh otomatis**: generate token baru setiap N detik tanpa reconnect WS
 - [ ] **Auth presenter**: password sederhana agar hanya presenter yang bisa buka dashboard
+
+---
+
+## 🔄 Document Synchronization Rules
+
+### Mandate
+
+**Gunakan aturan ini ketika mengimplementasikan fitur baru atau mengubah struktur proyek.**
+
+### Trigger: Update Wajib
+
+Update **kedua file** (`plan.md` DAN `AGENTS.md`) ketika:
+
+| Kategori | Contoh Perubahan |
+|----------|-----------------|
+| **Struktur File/Folder** | Menambah/menghapus route, komponen, module baru |
+| **Fitur Baru** | Multi-scan, analytics, auth, Redis store |
+| **Endpoint Baru** | REST API baru, WebSocket event baru |
+| **Dependency Baru** | Menambah library (Prisma, Redis, dll) |
+| **Deployment Change** | Ganti hosting,ubah environment variable |
+| **Tech Stack Change** |替换语言/框架 |
+
+### Aturan Spesifik
+
+#### 1. Fitur Baru Ditambahkan
+- **plan.md**: Tambah task baru di Phase yang sesuai, atau Phase baru
+- **AGENTS.md**: Tambah di "Roadmap Opsional" atau section baru
+
+#### 2. Struktur File Berubah
+- **plan.md**: Update "Tasks" dengan file baru
+- **AGENTS.md**: Update "📁 Struktur Proyek" diagram
+
+#### 3. Tech Stack Berubah
+- **plan.md**: Update Tech Stack table
+- **AGENTS.md**: Update both Tech Stack and implementation code blocks
+
+#### 4. Bug Fix / Refactor (TIDAK perlu update)
+- Tidak perlu update plan.md atau AGENTS.md untuk:
+  - Rename variabel internal
+  - Perbaiki styling tanpa dampak UX
+  - Refactor code yang tidak mengubah API/interface
+  - Comment/outdated documentation fix
+
+### Format Commit untuk Sync
+
+```
+docs: update plan.md and AGENTS.md for [perubahan]
+```
+
+Contoh:
+```
+docs: update plan.md and AGENTS.md for Redis store integration
+feat: update plan.md and AGENTS.md for multi-scan feature
+```
+
+### Checklist Sebelum Commit
+
+```
+☐ Apakah ada file/folder baru?      → Update plan.md Phase + AGENTS.md Struktur
+☐ Apakah ada fitur baru?             → Update plan.md + AGENTS.md Roadmap
+☐ Apakah ada endpoint/API baru?      → Update plan.md + AGENTS.md Event Protocol
+☐ Apakah ada dependency baru?        → Update plan.md + AGENTS.md Tech Stack
+☐ Apakah berubah jadi production-ready? → Update Deployment section
+```

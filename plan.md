@@ -26,11 +26,11 @@ Sistem check-in acara berbasis QR Code menggunakan **Bun** + **SvelteKit** + **W
 
 #### Tasks
 
-- [ ] **1.1** Initialize workspace dengan Bun workspaces (~2 min)
+- [x] **1.1** Initialize workspace dengan Bun workspaces (~2 min)
   - **Command**: `mkdir -p apps/backend apps/frontend && cd apps/backend && bun init -y && cd ../frontend && bun create svelte@latest . --template skeleton --types typescript`
   - **Verify**: `ls apps/backend/package.json && ls apps/frontend/package.json`
 
-- [ ] **1.2** Setup root package.json dengan workspaces (~2 min)
+- [x] **1.2** Setup root package.json dengan workspaces (~2 min)
   - **Command**: `cd /home/tantojos4/development/qrkis && cat > package.json << 'EOF'
 {
   "name": "qr-event",
@@ -45,11 +45,11 @@ Sistem check-in acara berbasis QR Code menggunakan **Bun** + **SvelteKit** + **W
 EOF`
   - **Verify**: `cat package.json | grep -A2 workspaces`
 
-- [ ] **1.3** Install dependencies backend (~3 min) [⚡ parallel OK]
+- [x] **1.3** Install dependencies backend (~3 min) [⚡ parallel OK]
   - **Command**: `cd /home/tantojos4/development/qrkis/apps/backend && bun add -d bun-types`
   - **Verify**: `ls node_modules/bun-types 2>/dev/null || echo "devdep OK"`
 
-- [ ] **1.4** Install dependencies frontend (~5 min) [⚡ parallel OK]
+- [x] **1.4** Install dependencies frontend (~5 min) [⚡ parallel OK]
   - **Command**: `cd /home/tantojos4/development/qrkis/apps/frontend && bun add qrcode @types/qrcode`
   - **Verify**: `grep qrcode package.json`
 
@@ -66,7 +66,7 @@ ls apps/backend/package.json && ls apps/frontend/package.json && cat package.jso
 
 #### Tasks
 
-- [ ] **2.1** Create backend entry point (~5 min)
+- [x] **2.1** Create backend entry point (~5 min)
   - **Command**: `cat > /home/tantojos4/development/qrkis/apps/backend/src/index.ts << 'EOF'
 import { sessionStore, createSession, consumeToken } from "./store/sessions";
 import { handleScan } from "./routes/scan";
@@ -105,7 +105,7 @@ console.log("🚀 Server berjalan di port", PORT);
 EOF`
   - **Verify**: `cat apps/backend/src/index.ts | grep -E "Bun.serve|port"`
 
-- [ ] **2.2** Create session store (~5 min)
+- [x] **2.2** Create session store (~5 min)
   - **Command**: `mkdir -p /home/tantojos4/development/qrkis/apps/backend/src/{store,routes,ws,utils} && cat > /home/tantojos4/development/qrkis/apps/backend/src/store/sessions.ts << 'EOF'
 export interface Session {
   id: string;
@@ -152,7 +152,7 @@ export function consumeToken(token: string): Session | null {
 EOF`
   - **Verify**: `cat apps/backend/src/store/sessions.ts | grep "export function"`
 
-- [ ] **2.3** Create scan route (~5 min)
+- [x] **2.3** Create scan route (~5 min)
   - **Command**: `cat > /home/tantojos4/development/qrkis/apps/backend/src/routes/scan.ts << 'EOF'
 import { consumeToken } from "../store/sessions";
 
@@ -213,7 +213,7 @@ function htmlResponse(message: string, status: number): Response {
 EOF`
   - **Verify**: `cat apps/backend/src/routes/scan.ts | grep "htmlResponse"`
 
-- [ ] **2.4** Create session route (~3 min)
+- [x] **2.4** Create session route (~3 min)
   - **Command**: `cat > /home/tantojos4/development/qrkis/apps/backend/src/routes/session.ts << 'EOF'
 import type { Server } from "bun";
 
@@ -231,7 +231,7 @@ export async function handleSession(req: Request, server: Server): Promise<Respo
 EOF`
   - **Verify**: `cat apps/backend/src/routes/session.ts | grep "handleSession"`
 
-- [ ] **2.5** Create WebSocket handler (~5 min)
+- [x] **2.5** Create WebSocket handler (~5 min)
   - **Command**: `cat > /home/tantojos4/development/qrkis/apps/backend/src/ws/handler.ts << 'EOF'
 import { createSession } from "../store/sessions";
 
@@ -272,7 +272,7 @@ export const wsHandler = {
 EOF`
   - **Verify**: `cat apps/backend/src/ws/handler.ts | grep "wsHandler"`
 
-- [ ] **2.6** Create .env backend (~1 min)
+- [x] **2.6** Create .env backend (~1 min)
   - **Command**: `cat > /home/tantojos4/development/qrkis/apps/backend/.env << 'EOF'
 PORT=3001
 TOKEN_EXPIRY_MS=300000
@@ -293,7 +293,7 @@ sleep 2 && curl -s http://localhost:3001/scan?token=test | head -5; kill %1 2>/d
 
 #### Tasks
 
-- [ ] **3.1** Create presenter page (~10 min)
+- [x] **3.1** Create presenter page (~10 min)
   - **Command**: `mkdir -p /home/tantojos4/development/qrkis/apps/frontend/src/routes/presenter && cat > /home/tantojos4/development/qrkis/apps/frontend/src/routes/presenter/+page.svelte << 'EOFSVELTE'
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
@@ -311,7 +311,7 @@ sleep 2 && curl -s http://localhost:3001/scan?token=test | head -5; kill %1 2>/d
   let status: "idle" | "waiting" | "scanned" = "idle";
   let countdownInterval: ReturnType<typeof setInterval>;
 
-  $: scanUrl = token ? `http://localhost:5173/scan?token=${token}` : "";
+  $: scanUrl = token ? `http://localhost:5178/scan?token=${token}` : "";
 
   onMount(() => {
     connect();
@@ -460,7 +460,7 @@ sleep 2 && curl -s http://localhost:3001/scan?token=test | head -5; kill %1 2>/d
 EOFSVELTE`
   - **Verify**: `cat apps/frontend/src/routes/presenter/+page.svelte | grep "qrCanvas"`
 
-- [ ] **3.2** Create scan confirmation page (~5 min)
+- [x] **3.2** Create scan confirmation page (~5 min)
   - **Command**: `mkdir -p /home/tantojos4/development/qrkis/apps/frontend/src/routes/scan && cat > /home/tantojos4/development/qrkis/apps/frontend/src/routes/scan/+page.server.ts << 'EOF'
 import type { PageServerLoad } from "./$types";
 
@@ -483,7 +483,7 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 EOF`
   - **Verify**: `cat apps/frontend/src/routes/scan/+page.server.ts | grep "PageServerLoad"`
 
-- [ ] **3.3** Create scan result page (~5 min)
+- [x] **3.3** Create scan result page (~5 min)
   - **Command**: `cat > /home/tantojos4/development/qrkis/apps/frontend/src/routes/scan/+page.svelte << 'EOFSVELTE'
 <script lang="ts">
   import type { PageData } from "./$types";
@@ -525,7 +525,7 @@ EOF`
 EOFSVELTE`
   - **Verify**: `cat apps/frontend/src/routes/scan/+page.svelte | grep "PageData"`
 
-- [ ] **3.4** Create landing page (~3 min)
+- [x] **3.4** Create landing page (~3 min)
   - **Command**: `cat > /home/tantojos4/development/qrkis/apps/frontend/src/routes/+page.svelte << 'EOFSVELTE'
 <script lang="ts">
   import { goto } from "$app/navigation";
@@ -566,25 +566,25 @@ ls apps/frontend/src/routes/presenter/+page.svelte && ls apps/frontend/src/route
 
 #### Tasks
 
-- [ ] **4.1** Start backend server (~1 min)
+- [x] **4.1** Start backend server (~1 min)
   - **Command**: `cd /home/tantojos4/development/qrkis/apps/backend && bun run src/index.ts &
 sleep 3`
   - **Verify**: `curl -s http://localhost:3001/ 2>/dev/null | grep -i "not found" || echo "Server running"`
 
-- [ ] **4.2** Test WebSocket connection (~2 min)
+- [x] **4.2** Test WebSocket connection (~2 min)
   - **Command**: `npm install -g wscat 2>/dev/null; wscat -c ws://localhost:3001/ws 2>&1 &
 sleep 2 && kill %1 2>/dev/null`
   - **Verify**: `echo "WS test completed"`
 
-- [ ] **4.3** Test scan endpoint (~2 min)
+- [x] **4.3** Test scan endpoint (~2 min)
   - **Command**: `curl -s "http://localhost:3001/scan?token=invalid" | grep -o "⚠️" || echo "Scan route working"`
   - **Verify**: `curl -s "http://localhost:3001/scan" | grep -o "Token tidak ditemukan"`
 
-- [ ] **4.4** Build frontend (~5 min)
+- [x] **4.4** Build frontend (~5 min)
   - **Command**: `cd /home/tantojos4/development/qrkis/apps/frontend && bun run build 2>&1 | tail -10`
   - **Verify**: `ls apps/frontend/build 2>/dev/null || echo "Build artifacts exist"`
 
-- [ ] **4.5** Cleanup test processes (~1 min)
+- [x] **4.5** Cleanup test processes (~1 min)
   - **Command**: `pkill -f "bun run src/index.ts" 2>/dev/null; echo "Cleanup done"`
   - **Verify**: `echo "Test processes cleaned"`
 
@@ -619,3 +619,51 @@ cd /home/tantojos4/development/qrkis/apps/frontend && bun run build 2>&1 | grep 
 - Presenter dashboard dengan QR display
 - Scan confirmation page untuk audiens
 - Real-time scan notification via WebSocket
+
+---
+
+## 📝 Document Synchronization Rules
+
+### Trigger: Update Wajib
+
+Update **kedua file** (`plan.md` DAN `AGENTS.md`) ketika:
+
+| Kategori | Contoh Perubahan |
+|----------|-----------------|
+| **Struktur File/Folder** | Menambah/menghapus route, komponen, module baru |
+| **Fitur Baru** | Multi-scan, analytics, auth, Redis store |
+| **Endpoint Baru** | REST API baru, WebSocket event baru |
+| **Dependency Baru** | Menambah library (Prisma, Redis, dll) |
+| **Deployment Change** | Ganti hosting,ubah environment variable |
+| **Tech Stack Change** | Ganti bahasa/framework |
+
+### Aturan Spesifik
+
+#### 1. Fitur Baru Ditambahkan
+- **plan.md**: Tambah task baru di Phase yang sesuai, atau Phase baru
+- **AGENTS.md**: Tambah di "Roadmap Opsional" atau section baru
+
+#### 2. Struktur File Berubah
+- **plan.md**: Update "Tasks" dengan file baru
+- **AGENTS.md**: Update "📁 Struktur Proyek" diagram
+
+#### 3. Tech Stack Berubah
+- **plan.md**: Update Tech Stack table
+- **AGENTS.md**: Update both Tech Stack and implementation code blocks
+
+#### 4. Bug Fix / Refactor (TIDAK perlu update)
+- Tidak perlu update plan.md atau AGENTS.md untuk:
+  - Rename variabel internal
+  - Perbaiki styling tanpa dampak UX
+  - Refactor code yang tidak mengubah API/interface
+  - Comment/outdated documentation fix
+
+### Checklist Sebelum Commit
+
+```
+☐ Apakah ada file/folder baru?      → Update plan.md Phase + AGENTS.md Struktur
+☐ Apakah ada fitur baru?             → Update plan.md + AGENTS.md Roadmap
+☐ Apakah ada endpoint/API baru?      → Update plan.md + AGENTS.md Event Protocol
+☐ Apakah ada dependency baru?        → Update plan.md + AGENTS.md Tech Stack
+☐ Apakah berubah jadi production-ready? → Update Deployment section
+```

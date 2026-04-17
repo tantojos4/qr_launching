@@ -38,15 +38,22 @@ Bun.serve({
 
     if (url.pathname === "/scan" && req.method === "GET") {
       const token = url.searchParams.get("token");
+      const targetUrl = url.searchParams.get("target");
 
       if (!token) {
-        return Response.redirect(`${FRONTEND_URL}/scan?error=missing_token`, 302);
+        return new Response(`<!DOCTYPE html><html><body style="background:#0f172a;color:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif;text-align:center;"><div><h1>❌</h1><p>Token tidak ditemukan</p></div></body></html>`, {
+          status: 400,
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        });
       }
 
       const session = consumeToken(token);
 
       if (!session) {
-        return Response.redirect(`${FRONTEND_URL}/scan?error=invalid_or_used`, 410);
+        return new Response(`<!DOCTYPE html><html><body style="background:#0f172a;color:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif;text-align:center;"><div><h1>⚠️</h1><p>QR sudah digunakan atau kedaluwarsa</p></div></body></html>`, {
+          status: 410,
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        });
       }
 
       server.publish(
@@ -55,10 +62,51 @@ Bun.serve({
           event: "scan:confirmed",
           sessionId: session.id,
           timestamp: Date.now(),
+          targetUrl: targetUrl,
         })
       );
 
-      return Response.redirect(`${FRONTEND_URL}/scan?sessionId=${session.id}&success=1`, 302);
+      // HP dapat blank page dengan auto-close script
+      return new Response(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OK</title></head><body style="margin:0;background:#0f172a"><script>setTimeout(()=>{try{window.close()}catch(e){}document.body.innerHTML=""},100)</script></body></html>`, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
+
+    // API endpoint untuk laptop scanner notify scan
+    if (url.pathname === "/api/scan" && req.method === "GET") {
+      const token = url.searchParams.get("token");
+      const targetUrl = url.searchParams.get("target");
+
+      if (!token) {
+        return new Response(JSON.stringify({ error: "Token tidak ditemukan" }), {
+          status: 400,
+          headers: { ...headers, "Content-Type": "application/json" },
+        });
+      }
+
+      const session = consumeToken(token);
+
+      if (!session) {
+        return new Response(JSON.stringify({ error: "QR sudah digunakan" }), {
+          status: 410,
+          headers: { ...headers, "Content-Type": "application/json" },
+        });
+      }
+
+      // Notify semua client WebSocket
+      server.publish(
+        `session:${session.id}`,
+        JSON.stringify({
+          event: "scan:confirmed",
+          sessionId: session.id,
+          timestamp: Date.now(),
+          targetUrl: targetUrl,
+        })
+      );
+
+      return new Response(JSON.stringify({ success: true, targetUrl }), {
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
     }
 
     if (url.pathname.startsWith("/session")) {
