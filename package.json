@@ -1,0 +1,16 @@
+{
+  "name": "qr-launching",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "bun run --parallel dev:backend dev:frontend",
+    "dev:backend": "cd apps/backend && bun run dev",
+    "dev:frontend": "cd apps/frontend && bun run dev",
+    "build": "bun run build:backend && bun run build:frontend",
+    "build:backend": "cd apps/backend && bun build src/index.ts --outdir dist",
+    "build:frontend": "cd apps/frontend && bun run build"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.0.0"
+  }
+}
