@@ -1,0 +1,2 @@
+# Ganti your-railway-project dengan URL Railway kamu
+/api/*    https://your-railway-project.railway.app/api/:splat    200
