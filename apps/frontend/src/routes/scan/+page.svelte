@@ -1,12 +1,27 @@
 <script lang="ts">
   import { page } from "$app/stores";
+
+  $: success = $page.url.searchParams.get("success") === "1";
+  $: error = $page.url.searchParams.get("error");
+  $: sessionId = $page.url.searchParams.get("sessionId");
+
+  $: title = error ? "⚠️" : success ? "🎉" : "🚀";
+  $: message = error === "missing_token" 
+    ? "Token tidak ditemukan" 
+    : error === "invalid_or_used" 
+    ? "QR sudah digunakan atau kedaluwarsa" 
+    : success 
+    ? "Website Launched!" 
+    : "Terima kasih sudah berpartisipasi";
 </script>
 
 <main>
-  <div class="card">
-    <h1>🚀</h1>
-    <p>Website Launched!</p>
-    <p class="subtitle">Terima kasih sudah berpartisipasi</p>
+  <div class="card" class:error class:success>
+    <h1>{title}</h1>
+    <p>{message}</p>
+    {#if sessionId}
+      <p class="session-id">Session: {sessionId}</p>
+    {/if}
   </div>
 </main>
 
@@ -26,6 +41,13 @@
     background: #1e293b;
     box-shadow: 0 0 40px rgba(99,102,241,0.3);
     text-align: center;
+    transition: box-shadow 0.3s;
+  }
+  .card.success {
+    box-shadow: 0 0 40px rgba(34,197,94,0.4);
+  }
+  .card.error {
+    box-shadow: 0 0 40px rgba(248,113,113,0.4);
   }
   h1 {
     font-size: 4rem;
@@ -36,8 +58,10 @@
     color: #94a3b8;
     margin: 0.5rem 0;
   }
-  .subtitle {
+  .session-id {
     color: #64748b;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-family: monospace;
+    margin-top: 1rem;
   }
 </style>
