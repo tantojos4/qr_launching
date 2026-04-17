@@ -12,7 +12,7 @@
   let expiresAt = 0;
   let scanCount = 0;
   let countdownSeconds = 0;
-  let status: "idle" | "waiting" | "scanned" = "idle";
+  let status: "idle" | "waiting" | "scanned" | "regenerating" = "idle";
   let countdownInterval: ReturnType<typeof setInterval>;
 
   $: scanUrl = token ? `${FRONTEND_URL}/scan?token=${token}` : "";
@@ -32,7 +32,7 @@
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
 
-      if (data.event === "session:created") {
+      if (data.event === "session:created" || data.event === "token:regenerated") {
         sessionId = data.sessionId;
         token = data.token;
         expiresAt = data.expiresAt;
@@ -49,7 +49,11 @@
       }
     };
 
-    ws.onclose = () => setTimeout(connect, 2000);
+    ws.onclose = () => {
+      if (status !== "regenerating") {
+        setTimeout(connect, 2000);
+      }
+    };
     ws.onerror = () => ws.close();
   }
 
@@ -75,7 +79,13 @@
   }
 
   function regenerate() {
-    ws.close();
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      status = "idle";
+      return;
+    }
+
+    status = "regenerating";
+    ws.send(JSON.stringify({ action: "regenerate" }));
   }
 </script>
 
@@ -95,10 +105,15 @@
       </div>
 
       <div class="countdown" class:urgent={countdownSeconds < 30}>
-        ⏱ Kedaluwarsa dalam {countdownSeconds}s
+        ⏱ {status === "scanned" ? "Reset..." : `Kedaluwarsa dalam ${countdownSeconds}s`}
       </div>
 
       <p class="hint">Minta audiens scan QR untuk launch website</p>
+    {:else if status === "regenerating"}
+      <div class="qr-wrapper">
+        <canvas bind:this={qrCanvas}></canvas>
+      </div>
+      <div class="countdown">🔄 Regenerating token...</div>
     {:else}
       <div class="idle">Menghubungkan ke server...</div>
     {/if}
